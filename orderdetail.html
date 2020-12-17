@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css"
+	href="statics/css/cake.generic.css">
+
+</head>
+
+<body>
+	<div id="container">
+		<div id="header">
+			<h2>
+				網頁名稱
+			</h2>
+		</div>
+		<div id="content">
+			
+			<a href="home.html">首頁</a> >  <a href="member.html">會員專區</a> >  <a href="otherapplication.html">查看他人申請</a> > <h1>訂單詳情<h1>
+			<div id='order_panel' ></div>
+
+			
+	<script type="text/javascript">
+
+// 取得網址參數
+                var url_string = window.location.href;
+                var url = new URL(url_string);
+                var id = url.searchParams.get("id");
+                var sql_num = 0;
+		
+                function deleteApplication(id) {
+                    var check = window.confirm("確認取消申請？");
+                    if (check == true) {
+                        console.log("You pressed OK!");
+                        var request = {'id': id};   //物件(key,value)
+                        var data_string = JSON.stringify(request);   //JSON.stringify()把javascript轉成json
+                        $.ajax({
+                            type: "DELETE",
+                            url: "api/application.do",
+                            crossDomain: true,
+                            data: data_string,
+                            cache: false,
+                            dataType: 'json',
+                            timeout: 5000,
+                            success: function (response) {
+                                if(response.status == 200){
+                                    $("#flashMessage").html("成功! 已經成功取消申請...");
+                                    $("#flashMessage").show();
+                                    getAllApplication();
+                                }
+                                console.log(response);
+                            },
+                            error: function () {
+                                alert("無法連線到伺服器！");
+                            }
+                        });
+                    }
+                    else {
+                        console.log("You pressed Cancel!");
+                    }
+                }
+                
+
+                function getApplicationByID(id) {
+                    // 發出POST的GET請求取得所有申請列表
+                    $.ajax({
+                            type: "GET",
+                            url: "api/application.do",
+                            crossDomain: true,
+                            cache: false,
+                            dataType: 'json',
+                            timeout: 5000,
+                            success: function (response) {
+                                if(response.status == 200){
+                                    updateHTML(response.response.data);//response回來
+                                    
+                                }
+                                console.log(response);
+                            },
+                            error: function () {
+                                alert("無法連線到伺服器！");
+                            }
+                    });
+                }
+                
+                // 更新申請畫面
+             	function updateHTML(data) {
+		     		var inner_html = '';
+	  	     		var temp = '';
+                   
+		  			if(data.transaction_mean == "以物易物"){
+                     
+		  
+		  				temp = '<div >訂單編號：'+ data.id + '		買家：' + data.buyer_id + '		申請日期：' + data.start_time + '	狀態：' + data.status;
+		 				temp +=  '<img src="statics/img/product/' + data.image + '" width="100%">';
+		  				temp += '<div class="col p-4 d-flex flex-column position-static">';
+		  				temp += '<strong class="d-inline-block mb-2 text-primary">訂單編號：#' + value['order_info']['id'] + '</strong>';
+		  				temp += '<h3 class="mb-0"><span class="p-2">' + value['order_info']['last_name'] + '</span>';
+		  				temp += '<span>' + value['order_info']['first_name'] + '</span></h3>';
+		  				temp += '<hr/>';
+		  				temp += '<div class="mb-1 text-muted">建立時間：' + value['order_info']['create'] + '</div>';
+		  				temp += '<div class="mb-1 text-muted">修改時間：' + value['order_info']['modify'] + '</div>';
+		  				temp += '<p class="card-text mb-auto">總價：$ ' + total_price + '</p>';
+		  				temp += '<a href="order_detail.html?id=' + value['order_info']['id'] + '" class="stretched-link">詳細資料</a>';
+		  				temp += '</div></div></div>';
+		  			}
+		  			else{
+		  
+		  			}
+		  			inner_html = temp;
+	  			
+	  
+	 				 $('#order_panel').append(inner_html);
+                }
+                
+               
+                $(document).ready(function() {
+                    getAllMember();
+                });
+            </script>
+		</div>
+		
+	</div>
+	
+</body>
+
+</html>

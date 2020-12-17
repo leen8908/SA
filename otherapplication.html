@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css"
+	href="statics/css/cake.generic.css">
+
+</head>
+
+<body>
+	<div id="container">
+		<div id="header">
+			<h2>
+				網頁名稱
+			</h2>
+		</div>
+		<div id="content">
+			
+			<a href="home.html">首頁</a> >  <a href="member.html">會員專區</a> > <h1>查看他人申請</h1>
+
+			<div id="flashMessage" class="message" style="display: none;"></div>
+
+			<table id="table">
+				<thead>
+					<tr>
+						<th>訂單編號</th>
+						<th>買家</th>
+						<th>欲申請商品</th>
+						<th>狀態</th>
+						<th>申請日期</th>
+						<th>功能</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+			<script type="text/javascript">
+		
+                function deleteApplication(id) {
+                    var check = window.confirm("確認取消申請？");
+                    if (check == true) {
+                        console.log("You pressed OK!");
+                        var request = {'id': id};   //物件(key,value)
+                        var data_string = JSON.stringify(request);   //JSON.stringify()把javascript轉成json
+                        $.ajax({
+                            type: "DELETE",
+                            url: "api/application.do",
+                            crossDomain: true,
+                            data: data_string,
+                            cache: false,
+                            dataType: 'json',
+                            timeout: 5000,
+                            success: function (response) {
+                                if(response.status == 200){
+                                    $("#flashMessage").html("成功! 已經成功取消申請...");
+                                    $("#flashMessage").show();
+                                    getAllApplication();
+                                }
+                                console.log(response);
+                            },
+                            error: function () {
+                                alert("無法連線到伺服器！");
+                            }
+                        });
+                    }
+                    else {
+                        console.log("You pressed Cancel!");
+                    }
+                }
+                
+
+                function getAllApplication() {
+                    // 發出POST的GET請求取得所有申請列表
+                    $.ajax({
+                            type: "GET",
+                            url: "api/application.do",
+                            crossDomain: true,
+                            cache: false,
+                            dataType: 'json',
+                            timeout: 5000,
+                            success: function (response) {
+                                if(response.status == 200){
+                                    updateTable(response.response.data);//response回來
+                                    
+                                }
+                                console.log(response);
+                            },
+                            error: function () {
+                                alert("無法連線到伺服器！");
+                            }
+                    });
+                }
+                
+                // 更新申請列表表格
+                function updateTable(data) {
+                    $("#table > tbody").empty();
+                    var table_html = '';
+                    $.each(data, function(index, value) {
+                        table_html += '<tr><td scope="row">' + value['id'] + '</td>';
+                        table_html += '<td>' + value['buyer_id'] + '</td>';
+                        table_html += '<td>' + value['product_name'] + '</td>';
+                        table_html += '<td>' + value['status'] + '</td>';
+                        table_html += '<td>' + value['start_time'] + '</td>';
+                        table_html += '<td>' + '<a href="orderdetail.html?id=' + value['id'] + '">查看</a> | ';
+                        table_html += '<a href="javascript: deleteMember(' + value['id'] + ');">取消</a></td></tr>';
+                    })
+
+                    $("#table > tbody").append(table_html);
+                }
+                
+               
+                $(document).ready(function() {
+                    getAllMember();
+                });
+            </script>
+		</div>
+		
+	</div>
+	
+</body>
+
+</html>
